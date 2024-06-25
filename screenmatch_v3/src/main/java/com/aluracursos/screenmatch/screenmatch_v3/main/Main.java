@@ -3,6 +3,7 @@ package com.aluracursos.screenmatch.screenmatch_v3.main;
 import com.aluracursos.screenmatch.screenmatch_v3.model.DataShow;
 import com.aluracursos.screenmatch.screenmatch_v3.model.SeasonData;
 import com.aluracursos.screenmatch.screenmatch_v3.model.Show;
+import com.aluracursos.screenmatch.screenmatch_v3.repository.ShowRepository;
 import com.aluracursos.screenmatch.screenmatch_v3.service.APIConsumption;
 import com.aluracursos.screenmatch.screenmatch_v3.service.DataConversor;
 
@@ -19,6 +20,11 @@ public class Main {
     private final String API_KEY = "&apikey=d7daaab3&";
     private DataConversor dataConversor = new DataConversor();
     private List<DataShow> dataShowList = new ArrayList<>();
+    private ShowRepository showRepository;
+
+    public Main(ShowRepository showRepository) {
+        this.showRepository = showRepository;
+    }
 
     public void showMenu() {
         var option = -1;
@@ -77,15 +83,15 @@ public class Main {
 
     private void searchShow() {
         DataShow dataShow = getDataShow();
-        dataShowList.add(dataShow);
+        Show show = new Show(dataShow);
+        showRepository.save(show);
+        //dataShowList.add(dataShow);
         System.out.println(dataShow);
     }
 
     private void showSearchedSerie() {
-        List<Show> showsList = new ArrayList<>();
-        showsList = dataShowList.stream()
-                .map(dataShow -> new Show(dataShow))
-                .collect(Collectors.toList());
+        List<Show> showsList = showRepository.findAll();
+
         showsList.stream()
                 .sorted(Comparator.comparing(Show::getGenre))
                 .forEach(System.out::println);
